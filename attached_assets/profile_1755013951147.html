@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile - Art Connect</title>
+    <link rel="stylesheet" href="../styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <header>
+        <nav class="navbar">
+            <div class="nav-container">
+                <a href="../index.html" class="nav-brand">Art Connect</a>
+                <ul class="nav-menu">
+                    <li><a href="../index.html">Home</a></li>
+                    <li><a href="feed.html">Art Feed</a></li>
+                    <li><a href="upload.html">Upload Art</a></li>
+                    <li><a href="about.html">About</a></li>
+                </ul>
+                <button onclick="signOut()" class="nav-button">Sign Out</button>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <section class="profile-container">
+            <div class="profile-header">
+                <div class="profile-info">
+                    <h2 id="profileName">Loading...</h2>
+                    <p id="profileEmail">Loading...</p>
+                </div>
+            </div>
+
+            <div class="profile-tabs">
+                <button class="tab-btn active" onclick="showTab('my-art')">My Art</button>
+                <button class="tab-btn" onclick="showTab('settings')">Settings</button>
+            </div>
+
+            <div class="tab-content" id="my-art">
+                <h3>My Artwork</h3>
+                <div class="art-grid" id="myArtGrid">
+                    <!-- Art posts will be loaded here -->
+                </div>
+            </div>
+
+            <div class="tab-content hidden" id="settings">
+                <h3>Profile Settings</h3>
+                <form id="settingsForm">
+                    <div class="form-group">
+                        <label for="displayName">Display Name</label>
+                        <input type="text" id="displayName" name="displayName">
+                    </div>
+                    <div class="form-group">
+                        <label for="bio">Bio</label>
+                        <textarea id="bio" name="bio" rows="4"></textarea>
+                    </div>
+                    <button type="submit" class="cta-button">Save Changes</button>
+                </form>
+            </div>
+        </section>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        // Initialize Supabase
+        const supabaseUrl = 'https://ywfoxtfqywxxwjlocxpg.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl3Zm94dGZxeXd4eHdqbG9jeHBnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NzM0MDcsImV4cCI6MjA3MDU0OTQwN30.OjVWNkP_rdmsw7k0bWH9l4Z3U68Ch-d5AeNE9V6H09k';
+        const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+
+        // Check if user is authenticated
+        if (!supabase.auth.getUser().data.user) {
+            window.location.href = 'auth.html';
+        }
+
+        // Load user profile
+        async function loadProfile() {
+            const user = supabase.auth.getUser().data.user;
+            if (user) {
+                document.getElementById('profileName').textContent = user.email.split('@')[0];
+                document.getElementById('profileEmail').textContent = user.email;
+                loadMyArtwork();
+            }
+        }
+
+        // Load user's artwork
+        async function loadMyArtwork() {
+            const user = supabase.auth.getUser().data.user;
+            const { data, error } = await supabase
+                .from('art_posts')
+                .select('*')
+                .eq('artist_email', user.email)
+                .order('created_at', { ascending: false });
+
+            if (error) console.error('Error loading artwork:', error);
+            else {
+                const artGrid = document.getElementById('myArtGrid');
+                artGrid.innerHTML = '';
+                data.forEach(post => {
+                    const postElement = document.createElement('div');
+                    postElement.className = 'art-post';
+                    postElement.innerHTML = `
+                        <img src="${post.image_url}" alt="${post.title}" class="art-image">
+                        <div class="post-info">
+                            <h3>${post.title}</h3>
+                            <p>${post.description}</p>
+                            <div class="post-actions">
+                                <button onclick="deleteArt('${post.id}')">
+                                    <i class="fas fa-trash"></i> Delete
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                    artGrid.appendChild(postElement);
+                });
+            }
+        }
+
+        // Show different tabs
+        function showTab(tabId) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.add('hidden');
+            });
+            // Show selected tab
+            document.getElementById(tabId).classList.remove('hidden');
+            // Update tab buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.querySelector(`[onclick="showTab('${tabId}')"]').classList.add('active');
+        }
+
+        // Sign out
+        function signOut() {
+            supabase.auth.signOut();
+            window.location.href = 'auth.html';
+        }
+
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', loadProfile);
+    </script>
+</body>
+</html>

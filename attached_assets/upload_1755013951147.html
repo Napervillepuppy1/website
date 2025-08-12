@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Art - Art Connect</title>
+    <link rel="stylesheet" href="../styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <header>
+        <nav class="navbar">
+            <div class="nav-container">
+                <a href="../index.html" class="nav-brand">Art Connect</a>
+                <ul class="nav-menu">
+                    <li><a href="../index.html">Home</a></li>
+                    <li><a href="feed.html">Art Feed</a></li>
+                    <li><a href="upload.html" class="active">Upload Art</a></li>
+                    <li><a href="about.html">About</a></li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <section class="upload-form">
+            <h1>Share Your Art</h1>
+            <form id="uploadForm" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label for="title">Art Title</label>
+                    <input type="text" id="title" name="title" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="artistName">Your Name</label>
+                    <input type="text" id="artistName" name="artistName" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="description">Description</label>
+                    <textarea id="description" name="description" rows="4"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="artFile">Upload Your Artwork</label>
+                    <input type="file" id="artFile" name="artFile" accept="image/*" required>
+                </div>
+
+                <button type="submit" class="cta-button">Share Your Art</button>
+            </form>
+        </section>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        // Initialize Supabase
+        const supabaseUrl = 'https://ywfoxtfqywxxwjlocxpg.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl3Zm94dGZxeXd4eHdqbG9jeHBnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NzM0MDcsImV4cCI6MjA3MDU0OTQwN30.OjVWNkP_rdmsw7k0bWH9l4Z3U68Ch-d5AeNE9V6H09k';
+        const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+
+        // Handle form submission
+        document.getElementById('uploadForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const title = document.getElementById('title').value;
+            const artistName = document.getElementById('artistName').value;
+            const description = document.getElementById('description').value;
+            const file = document.getElementById('artFile').files[0];
+
+            try {
+                // Upload image to Supabase Storage
+                const { data: storageData, error: storageError } = await supabase
+                    .storage
+                    .from('artwork')
+                    .upload(file.name, file);
+
+                if (storageError) throw storageError;
+
+                // Get public URL
+                const { data: publicUrl } = supabase
+                    .storage
+                    .from('artwork')
+                    .getPublicUrl(file.name);
+
+                // Insert into database
+                const { error: insertError } = await supabase
+                    .from('art_posts')
+                    .insert([
+                        {
+                            title: title,
+                            artist_name: artistName,
+                            description: description,
+                            image_url: publicUrl.publicUrl,
+                            created_at: new Date().toISOString()
+                        }
+                    ]);
+
+                if (insertError) throw insertError;
+
+                alert('Artwork uploaded successfully!');
+                window.location.href = 'feed.html';
+            } catch (error) {
+                console.error('Error uploading artwork:', error);
+                alert('Error uploading artwork. Please try again.');
+            }
+        });
+    </script>
+</body>
+</html>

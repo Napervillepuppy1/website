@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign In - Art Connect</title>
+    <link rel="stylesheet" href="../styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <header>
+        <nav class="navbar">
+            <div class="nav-container">
+                <a href="../index.html" class="nav-brand">Art Connect</a>
+                <ul class="nav-menu">
+                    <li><a href="../index.html">Home</a></li>
+                    <li><a href="feed.html">Art Feed</a></li>
+                    <li><a href="upload.html">Upload Art</a></li>
+                    <li><a href="about.html">About</a></li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <section class="auth-container">
+            <div class="auth-form">
+                <h2>Sign In</h2>
+                <form id="signInForm">
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" name="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <input type="password" id="password" name="password" required>
+                    </div>
+                    <button type="submit" class="cta-button">Sign In</button>
+                </form>
+
+                <div class="auth-options">
+                    <button onclick="showSignUpForm()">Sign Up</button>
+                    <button onclick="showForgotPassword()">Forgot Password?</button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        // Initialize Supabase
+        const supabaseUrl = 'https://ywfoxtfqywxxwjlocxpg.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl3Zm94dGZxeXd4eHdqbG9jeHBnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NzM0MDcsImV4cCI6MjA3MDU0OTQwN30.OjVWNkP_rdmsw7k0bWH9l4Z3U68Ch-d5AeNE9V6H09k';
+        const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+
+        // Check if already signed in
+        const { data: { user }, error } = await supabase.auth.getUser();
+        if (user) {
+            window.location.href = '../feed.html';
+            return;
+        }
+
+        // Sign In
+        document.getElementById('signInForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            try {
+                const { data, error } = await supabase.auth.signInWithPassword({
+                    email,
+                    password,
+                });
+
+                if (error) throw error;
+                console.log('Signed in successfully:', data);
+                window.location.href = '../feed.html';
+            } catch (error) {
+                console.error('Error signing in:', error);
+                alert('Error signing in. Please check your credentials.');
+            }
+        });
+
+        // Show Sign Up Form
+        function showSignUpForm() {
+            const signUpForm = `
+                <h2>Sign Up</h2>
+                <form id="signUpForm">
+                    <div class="form-group">
+                        <label for="signUpEmail">Email</label>
+                        <input type="email" id="signUpEmail" name="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="signUpPassword">Password</label>
+                        <input type="password" id="signUpPassword" name="password" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="signUpDisplayName">Display Name</label>
+                        <input type="text" id="signUpDisplayName" name="display_name" required>
+                    </div>
+                    <button type="submit" class="cta-button">Sign Up</button>
+                </form>
+            `;
+            document.querySelector('.auth-form').innerHTML = signUpForm;
+
+            document.getElementById('signUpForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const email = document.getElementById('signUpEmail').value;
+                const password = document.getElementById('signUpPassword').value;
+                const displayName = document.getElementById('signUpDisplayName').value;
+
+                try {
+                    const { data: { user }, error } = await supabase.auth.signUp({
+                        email,
+                        password,
+                        options: {
+                            data: {
+                                display_name: displayName
+                            }
+                        }
+                    });
+
+                    if (error) throw error;
+
+                    // Create user profile
+                    const { error: profileError } = await supabase
+                        .from('profiles')
+                        .insert([
+                            {
+                                id: user.id,
+                                display_name: displayName,
+                                email: email,
+                                avatar_url: null,
+                                created_at: new Date().toISOString()
+                            }
+                        ]);
+
+                    if (profileError) throw profileError;
+
+                    console.log('Signed up successfully:', data);
+                    alert('Account created! Please check your email to verify.');
+                } catch (error) {
+                    console.error('Error signing up:', error);
+                    alert('Error creating account. Please try again.');
+                }
+            });
+        }
+
+        // Show Forgot Password Form
+        function showForgotPassword() {
+            const forgotForm = `
+                <h2>Forgot Password</h2>
+                <form id="forgotForm">
+                    <div class="form-group">
+                        <label for="forgotEmail">Email</label>
+                        <input type="email" id="forgotEmail" name="email" required>
+                    </div>
+                    <button type="submit" class="cta-button">Reset Password</button>
+                </form>
+            `;
+            document.querySelector('.auth-form').innerHTML = forgotForm;
+
+            document.getElementById('forgotForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const email = document.getElementById('forgotEmail').value;
+
+                try {
+                    const { data, error } = await supabase.auth.resetPasswordForEmail(email);
+
+                    if (error) throw error;
+                    console.log('Password reset email sent:', data);
+                    alert('Password reset email sent! Please check your inbox.');
+                } catch (error) {
+                    console.error('Error resetting password:', error);
+                    alert('Error sending password reset email. Please try again.');
+                }
+            });
+        }
+    </script>
+</body>
+</html>

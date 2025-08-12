@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game - My Journey</title>
+    <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <script src="../game.js" defer></script>
+</head>
+<body class="game-page">
+    <header>
+        <nav class="navbar">
+            <div class="nav-container">
+                <a href="../index.html" class="nav-brand">My Journey</a>
+                <ul class="nav-menu">
+                    <li><a href="../index.html">Home</a></li>
+                    <li><a href="game.html" class="active">Game</a></li>
+                    <li><a href="instructions.html">Instructions</a></li>
+                    <li><a href="about.html">About</a></li>
+                </ul>
+                <a href="game.html" class="nav-button">Play Now</a>
+            </div>
+        </nav>
+    </header>
+
+    <div class="game-container">
+        <div class="game-hud">
+            <div class="hud-item">
+                <i class="fas fa-star"></i>
+                <span id="stars">0</span>
+            </div>
+            <div class="hud-item">
+                <i class="fas fa-clock"></i>
+                <span id="time">00:00</span>
+            </div>
+            <div class="hud-item">
+                <i class="fas fa-heart"></i>
+                <span id="lives">3</span>
+            </div>
+        </div>
+        <canvas id="gameCanvas" width="800" height="600"></canvas>
+    </div>
+
+    <!-- Game sprites -->
+    <img id="mau-sprite" src="../mau-sprite.png" style="display: none;">
+    <img id="bedroom-bg" src="../download.gif" style="display: none;">
+    <img id="school-bg" src="../download (8).jpeg" style="display: none;">
+
+    <!-- Test initialization -->
+    <script>
+        // Test to ensure game.js is loaded
+        console.log('Game HTML loaded');
+        
+        // Test canvas initialization
+        const canvas = document.getElementById('gameCanvas');
+        if (canvas) {
+            console.log('Canvas found');
+            const ctx = canvas.getContext('2d');
+            if (ctx) {
+                console.log('Canvas context found');
+                // Draw a simple test pattern
+                ctx.fillStyle = '#4B0082';
+                ctx.fillRect(50, 50, 100, 100);
+                ctx.fillStyle = '#8B00FF';
+                ctx.fillRect(150, 150, 100, 100);
+                ctx.fillStyle = '#00CED1';
+                ctx.fillRect(250, 250, 100, 100);
+                
+                // Draw test text
+                ctx.fillStyle = '#FFFFFF';
+                ctx.font = '20px Press Start 2P';
+                ctx.fillText('Test Drawing', 350, 350);
+            } else {
+                console.error('Canvas context not found');
+            }
+        } else {
+            console.error('Canvas not found');
+        }
+    </script>
+    <script>
+        // Initialize game after DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('DOM loaded');
+            // Make sure game.js is loaded
+            if (typeof initGame === 'function') {
+                console.log('Game.js loaded successfully');
+                initGame();
+                loadLevel(0);
+                gameLoop();
+            } else {
+                console.error('Game.js not loaded');
+            }
+        });
+    </script>
+
+    <script src="../game.js"></script>
+</body>
+</html>
