@@ -9,7 +9,6 @@ export function Navbar() {
     { href: "/feed", label: "Art Feed" },
     { href: "/upload", label: "Upload Art" },
     { href: "/profile", label: "Profile" },
-    { href: "/game", label: "Game" },
     { href: "/about", label: "About" },
   ];
 
@@ -25,8 +24,8 @@ export function Navbar() {
             <Link
               key={item.href}
               href={item.href}
-              className={`px-3 py-2 text-sm hover:bg-white hover:bg-opacity-10 rounded nav-transition ${
-                location === item.href ? "text-primary" : "text-white"
+              className={`px-3 py-2 text-sm hover:bg-white hover:bg-opacity-10 rounded nav-transition btn-press hover:scale-105 transform ${
+                location === item.href ? "text-primary animate-glow" : "text-white"
               }`}
               data-testid={`nav-link-${item.label.toLowerCase().replace(' ', '-')}`}
             >

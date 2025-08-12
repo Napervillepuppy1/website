@@ -16,10 +16,10 @@ export default function Home() {
           </p>
           
           <div className="flex flex-wrap justify-center gap-4 mb-12">
-            <Link href="/game">
-              <Button className="retro-gradient px-6 py-3 rounded-lg hover:scale-105 transform transition-all duration-300 flex items-center gap-2" data-testid="button-play-game">
-                <i className="fas fa-gamepad"></i>
-                Play Game
+            <Link href="/upload">
+              <Button className="retro-gradient px-6 py-3 rounded-lg hover:scale-105 transform transition-all duration-300 flex items-center gap-2" data-testid="button-share-art">
+                <i className="fas fa-paint-brush"></i>
+                Share Your Art
               </Button>
             </Link>
             <Link href="/feed">
@@ -80,12 +80,12 @@ export default function Home() {
               <p className="text-sm opacity-80 leading-relaxed">Build connections with artists worldwide</p>
             </div>
             
-            <div className="art-post-card rounded-lg p-6 hover:transform hover:scale-105 transition-all duration-300" data-testid="card-feature-games">
+            <div className="art-post-card rounded-lg p-6 hover:transform hover:scale-105 transition-all duration-300" data-testid="card-feature-discover">
               <div className="text-4xl text-primary mb-4">
-                <i className="fas fa-gamepad"></i>
+                <i className="fas fa-search"></i>
               </div>
-              <h3 className="text-lg mb-3">Play Games</h3>
-              <p className="text-sm opacity-80 leading-relaxed">Enjoy retro pixel art platformer games</p>
+              <h3 className="text-lg mb-3">Discover Art</h3>
+              <p className="text-sm opacity-80 leading-relaxed">Explore diverse artwork from talented artists worldwide</p>
             </div>
           </div>
         </div>

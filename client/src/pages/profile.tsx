@@ -43,17 +43,60 @@ export default function Profile() {
               </div>
               <div className="flex items-center gap-2">
                 <i className="fas fa-heart text-red-400"></i>
-                <span data-testid="text-likes-count">{mockUser.likes} Likes</span>
+                <span data-testid="text-total-likes">{mockUser.totalLikes} Likes</span>
               </div>
               <div className="flex items-center gap-2">
-                <i className="fas fa-users text-secondary"></i>
-                <span data-testid="text-followers-count">{mockUser.followers} Followers</span>
+                <i className="fas fa-eye text-blue-400"></i>
+                <span data-testid="text-total-views">{mockUser.totalViews} Views</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <i className="fas fa-calendar text-green-400"></i>
+                <span data-testid="text-join-date">Joined {mockUser.joinDate}</span>
               </div>
             </div>
           </div>
-          <Button className="retro-gradient hover:opacity-90 transition-opacity" data-testid="button-edit-profile">
+          <Button 
+            className="retro-gradient btn-press animate-bounce-in"
+            data-testid="button-edit-profile"
+          >
+            <i className="fas fa-edit mr-2"></i>
             Edit Profile
           </Button>
+        </div>
+      </div>
+
+      {/* Stats Dashboard */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div className="art-post-card p-6 text-center animate-fade-in">
+          <div className="text-3xl text-primary mb-2">
+            <i className="fas fa-images"></i>
+          </div>
+          <h3 className="text-2xl font-bold text-primary mb-1">{mockUser.artworks}</h3>
+          <p className="text-sm opacity-80">Total Artworks</p>
+        </div>
+        
+        <div className="art-post-card p-6 text-center animate-fade-in">
+          <div className="text-3xl text-red-400 mb-2">
+            <i className="fas fa-heart"></i>
+          </div>
+          <h3 className="text-2xl font-bold text-red-400 mb-1">{mockUser.totalLikes}</h3>
+          <p className="text-sm opacity-80">Total Likes</p>
+        </div>
+        
+        <div className="art-post-card p-6 text-center animate-fade-in">
+          <div className="text-3xl text-blue-400 mb-2">
+            <i className="fas fa-eye"></i>
+          </div>
+          <h3 className="text-2xl font-bold text-blue-400 mb-1">{mockUser.totalViews}</h3>
+          <p className="text-sm opacity-80">Total Views</p>
+        </div>
+        
+        <div className="art-post-card p-6 text-center animate-fade-in">
+          <div className="text-3xl text-yellow-400 mb-2">
+            <i className="fas fa-trophy"></i>
+          </div>
+          <h3 className="text-2xl font-bold text-yellow-400 mb-1">{Math.round(mockUser.totalLikes / mockUser.artworks)}</h3>
+          <p className="text-sm opacity-80">Avg Likes/Art</p>
         </div>
       </div>
 
