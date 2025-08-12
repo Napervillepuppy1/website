@@ -1,209 +1,259 @@
 import { useState } from "react";
+import { useLocation } from "wouter";
+import { useAuth } from "../lib/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useToast } from "@/hooks/use-toast";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Loader2 } from "lucide-react";
 
 export default function Auth() {
-  const [authMode, setAuthMode] = useState<"signin" | "signup" | "forgot">("signin");
-  const { toast } = useToast();
+  const [, navigate] = useLocation();
+  const { login, register } = useAuth();
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [loginForm, setLoginForm] = useState({
+    email: "",
+    password: "",
+  });
+
+  const [registerForm, setRegisterForm] = useState({
+    username: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+    displayName: "",
+    bio: "",
+  });
+
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    const action = authMode === "signin" ? "signed in" : authMode === "signup" ? "account created" : "password reset email sent";
-    toast({
-      title: "Success!",
-      description: `You have successfully ${action}!`,
-    });
+    setIsLoading(true);
+    setError("");
+
+    try {
+      const result = await login(loginForm.email, loginForm.password);
+      if (result.success) {
+        navigate("/");
+      } else {
+        setError(result.error || "Login failed");
+      }
+    } catch (err) {
+      setError("Login failed. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleRegister = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setError("");
+
+    if (registerForm.password !== registerForm.confirmPassword) {
+      setError("Passwords do not match");
+      setIsLoading(false);
+      return;
+    }
+
+    if (registerForm.password.length < 6) {
+      setError("Password must be at least 6 characters");
+      setIsLoading(false);
+      return;
+    }
+
+    try {
+      const result = await register({
+        username: registerForm.username,
+        email: registerForm.email,
+        displayName: registerForm.displayName || registerForm.username,
+        bio: registerForm.bio,
+      });
+
+      if (result.success) {
+        navigate("/");
+      } else {
+        setError(result.error || "Registration failed");
+      }
+    } catch (err) {
+      setError("Registration failed. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
-    <div className="max-w-md mx-auto px-4 py-8">
-      <div className="text-center mb-8">
-        <h1 className="text-3xl md:text-4xl mb-4 text-primary pixel-text-shadow" data-testid="text-auth-title">
-          Welcome Back
-        </h1>
-        <p className="text-lg opacity-80" data-testid="text-auth-subtitle">
-          Sign in to share your art with the community
-        </p>
-      </div>
+    <div className="min-h-screen flex items-center justify-center bg-background px-4">
+      <div className="w-full max-w-md">
+        <div className="text-center mb-8">
+          <h1 className="text-4xl font-bold text-primary mb-2" style={{ fontFamily: "Press Start 2P" }}>
+            ART CONNECT
+          </h1>
+          <p className="text-muted-foreground">Share your creativity with the world</p>
+        </div>
 
-      <div className="art-post-card rounded-lg p-8">
-        {/* Sign In Form */}
-        {authMode === "signin" && (
-          <div data-testid="form-signin">
-            <h2 className="text-xl mb-6 text-center text-primary">Sign In</h2>
-            <form onSubmit={handleSubmit}>
-              <div className="mb-4">
-                <Label htmlFor="email" className="block text-sm mb-2 text-primary">
-                  Email
-                </Label>
-                <Input 
-                  type="email" 
-                  id="email" 
-                  name="email" 
-                  className="w-full p-3 bg-gray-800 border border-gray-600 rounded-lg focus:border-primary focus:outline-none transition-colors" 
-                  placeholder="your@email.com"
-                  data-testid="input-signin-email"
-                  required 
-                />
-              </div>
-              
-              <div className="mb-6">
-                <Label htmlFor="password" className="block text-sm mb-2 text-primary">
-                  Password
-                </Label>
-                <Input 
-                  type="password" 
-                  id="password" 
-                  name="password" 
-                  className="w-full p-3 bg-gray-800 border border-gray-600 rounded-lg focus:border-primary focus:outline-none transition-colors" 
-                  placeholder="••••••••"
-                  data-testid="input-signin-password"
-                  required 
-                />
-              </div>
-              
-              <Button 
-                type="submit" 
-                className="w-full retro-gradient py-3 rounded-lg text-lg hover:opacity-90 transition-opacity mb-4"
-                data-testid="button-signin"
-              >
-                Sign In
-              </Button>
-            </form>
+        <Card className="border-2 border-primary/20">
+          <CardHeader>
+            <CardTitle className="text-center" style={{ fontFamily: "Press Start 2P", fontSize: "1.2rem" }}>
+              Welcome Back
+            </CardTitle>
+            <CardDescription className="text-center">
+              Sign in to your account or create a new one
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Tabs defaultValue="login" className="w-full">
+              <TabsList className="grid w-full grid-cols-2 mb-6">
+                <TabsTrigger value="login" data-testid="tab-login">
+                  Sign In
+                </TabsTrigger>
+                <TabsTrigger value="register" data-testid="tab-register">
+                  Sign Up
+                </TabsTrigger>
+              </TabsList>
 
-            <div className="text-center space-y-2">
-              <button 
-                onClick={() => setAuthMode("signup")}
-                className="text-primary hover:underline text-sm"
-                data-testid="link-signup"
-              >
-                Don't have an account? Sign up
-              </button>
-              <br />
-              <button 
-                onClick={() => setAuthMode("forgot")}
-                className="text-secondary hover:underline text-sm"
-                data-testid="link-forgot-password"
-              >
-                Forgot your password?
-              </button>
-            </div>
-          </div>
-        )}
+              {error && (
+                <Alert variant="destructive" className="mb-4">
+                  <AlertDescription>{error}</AlertDescription>
+                </Alert>
+              )}
 
-        {/* Sign Up Form */}
-        {authMode === "signup" && (
-          <div data-testid="form-signup">
-            <h2 className="text-xl mb-6 text-center text-primary">Create Account</h2>
-            <form onSubmit={handleSubmit}>
-              <div className="mb-4">
-                <Label htmlFor="signUpEmail" className="block text-sm mb-2 text-primary">
-                  Email
-                </Label>
-                <Input 
-                  type="email" 
-                  id="signUpEmail" 
-                  name="email" 
-                  className="w-full p-3 bg-gray-800 border border-gray-600 rounded-lg focus:border-primary focus:outline-none transition-colors" 
-                  placeholder="your@email.com"
-                  data-testid="input-signup-email"
-                  required 
-                />
-              </div>
-              
-              <div className="mb-4">
-                <Label htmlFor="signUpDisplayName" className="block text-sm mb-2 text-primary">
-                  Display Name
-                </Label>
-                <Input 
-                  type="text" 
-                  id="signUpDisplayName" 
-                  name="display_name" 
-                  className="w-full p-3 bg-gray-800 border border-gray-600 rounded-lg focus:border-primary focus:outline-none transition-colors" 
-                  placeholder="Your artist name"
-                  data-testid="input-signup-display-name"
-                  required 
-                />
-              </div>
-              
-              <div className="mb-6">
-                <Label htmlFor="signUpPassword" className="block text-sm mb-2 text-primary">
-                  Password
-                </Label>
-                <Input 
-                  type="password" 
-                  id="signUpPassword" 
-                  name="password" 
-                  className="w-full p-3 bg-gray-800 border border-gray-600 rounded-lg focus:border-primary focus:outline-none transition-colors" 
-                  placeholder="••••••••"
-                  data-testid="input-signup-password"
-                  required 
-                />
-              </div>
-              
-              <Button 
-                type="submit" 
-                className="w-full retro-gradient py-3 rounded-lg text-lg hover:opacity-90 transition-opacity mb-4"
-                data-testid="button-signup"
-              >
-                Create Account
-              </Button>
-            </form>
+              <TabsContent value="login">
+                <form onSubmit={handleLogin} className="space-y-4">
+                  <div>
+                    <Label htmlFor="login-email">Email</Label>
+                    <Input
+                      id="login-email"
+                      type="email"
+                      data-testid="input-login-email"
+                      value={loginForm.email}
+                      onChange={(e) => setLoginForm({ ...loginForm, email: e.target.value })}
+                      required
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="login-password">Password</Label>
+                    <Input
+                      id="login-password"
+                      type="password"
+                      data-testid="input-login-password"
+                      value={loginForm.password}
+                      onChange={(e) => setLoginForm({ ...loginForm, password: e.target.value })}
+                      required
+                    />
+                  </div>
+                  <Button 
+                    type="submit" 
+                    className="w-full" 
+                    disabled={isLoading}
+                    data-testid="button-login"
+                  >
+                    {isLoading ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Signing In...
+                      </>
+                    ) : (
+                      "Sign In"
+                    )}
+                  </Button>
+                </form>
+              </TabsContent>
 
-            <div className="text-center">
-              <button 
-                onClick={() => setAuthMode("signin")}
-                className="text-primary hover:underline text-sm"
-                data-testid="link-signin"
-              >
-                Already have an account? Sign in
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* Forgot Password Form */}
-        {authMode === "forgot" && (
-          <div data-testid="form-forgot-password">
-            <h2 className="text-xl mb-6 text-center text-primary">Reset Password</h2>
-            <form onSubmit={handleSubmit}>
-              <div className="mb-6">
-                <Label htmlFor="forgotEmail" className="block text-sm mb-2 text-primary">
-                  Email
-                </Label>
-                <Input 
-                  type="email" 
-                  id="forgotEmail" 
-                  name="email" 
-                  className="w-full p-3 bg-gray-800 border border-gray-600 rounded-lg focus:border-primary focus:outline-none transition-colors" 
-                  placeholder="your@email.com"
-                  data-testid="input-forgot-email"
-                  required 
-                />
-              </div>
-              
-              <Button 
-                type="submit" 
-                className="w-full retro-gradient py-3 rounded-lg text-lg hover:opacity-90 transition-opacity mb-4"
-                data-testid="button-reset-password"
-              >
-                Send Reset Link
-              </Button>
-            </form>
-
-            <div className="text-center">
-              <button 
-                onClick={() => setAuthMode("signin")}
-                className="text-primary hover:underline text-sm"
-                data-testid="link-back-signin"
-              >
-                Back to sign in
-              </button>
-            </div>
-          </div>
-        )}
+              <TabsContent value="register">
+                <form onSubmit={handleRegister} className="space-y-4">
+                  <div>
+                    <Label htmlFor="register-username">Username</Label>
+                    <Input
+                      id="register-username"
+                      type="text"
+                      data-testid="input-register-username"
+                      value={registerForm.username}
+                      onChange={(e) => setRegisterForm({ ...registerForm, username: e.target.value })}
+                      required
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="register-email">Email</Label>
+                    <Input
+                      id="register-email"
+                      type="email"
+                      data-testid="input-register-email"
+                      value={registerForm.email}
+                      onChange={(e) => setRegisterForm({ ...registerForm, email: e.target.value })}
+                      required
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="register-display-name">Display Name (Optional)</Label>
+                    <Input
+                      id="register-display-name"
+                      type="text"
+                      data-testid="input-register-display-name"
+                      value={registerForm.displayName}
+                      onChange={(e) => setRegisterForm({ ...registerForm, displayName: e.target.value })}
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="register-bio">Bio (Optional)</Label>
+                    <Input
+                      id="register-bio"
+                      type="text"
+                      data-testid="input-register-bio"
+                      placeholder="Tell us about yourself..."
+                      value={registerForm.bio}
+                      onChange={(e) => setRegisterForm({ ...registerForm, bio: e.target.value })}
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="register-password">Password</Label>
+                    <Input
+                      id="register-password"
+                      type="password"
+                      data-testid="input-register-password"
+                      value={registerForm.password}
+                      onChange={(e) => setRegisterForm({ ...registerForm, password: e.target.value })}
+                      required
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="register-confirm-password">Confirm Password</Label>
+                    <Input
+                      id="register-confirm-password"
+                      type="password"
+                      data-testid="input-register-confirm-password"
+                      value={registerForm.confirmPassword}
+                      onChange={(e) => setRegisterForm({ ...registerForm, confirmPassword: e.target.value })}
+                      required
+                    />
+                  </div>
+                  <Button 
+                    type="submit" 
+                    className="w-full" 
+                    disabled={isLoading}
+                    data-testid="button-register"
+                  >
+                    {isLoading ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Creating Account...
+                      </>
+                    ) : (
+                      "Create Account"
+                    )}
+                  </Button>
+                </form>
+              </TabsContent>
+            </Tabs>
+          </CardContent>
+        </Card>
+        
+        <div className="text-center mt-6 text-sm text-muted-foreground">
+          <p>Join our community of artists and art enthusiasts!</p>
+        </div>
       </div>
     </div>
   );
