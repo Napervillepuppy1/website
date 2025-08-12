@@ -1,0 +1,141 @@
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: hsl(0, 0%, 0%);
+  --foreground: hsl(0, 0%, 100%);
+  --card: hsl(0, 0%, 6.3%);
+  --card-foreground: hsl(0, 0%, 100%);
+  --popover: hsl(0, 0%, 6.3%);
+  --popover-foreground: hsl(0, 0%, 100%);
+  --primary: hsl(275, 43%, 53%);
+  --primary-foreground: hsl(0, 0%, 100%);
+  --secondary: hsl(240, 48%, 66%);
+  --secondary-foreground: hsl(0, 0%, 100%);
+  --muted: hsl(0, 0%, 9.4%);
+  --muted-foreground: hsl(0, 0%, 63.9%);
+  --accent: hsl(280, 50%, 56%);
+  --accent-foreground: hsl(0, 0%, 100%);
+  --destructive: hsl(0, 84%, 60%);
+  --destructive-foreground: hsl(0, 0%, 98%);
+  --border: hsl(0, 0%, 14.9%);
+  --input: hsl(0, 0%, 14.9%);
+  --ring: hsl(275, 43%, 53%);
+  --chart-1: hsl(275, 43%, 53%);
+  --chart-2: hsl(240, 48%, 66%);
+  --chart-3: hsl(280, 50%, 56%);
+  --chart-4: hsl(0, 84%, 60%);
+  --chart-5: hsl(120, 100%, 50%);
+  --sidebar: hsl(0, 0%, 6.3%);
+  --sidebar-foreground: hsl(0, 0%, 100%);
+  --sidebar-primary: hsl(275, 43%, 53%);
+  --sidebar-primary-foreground: hsl(0, 0%, 100%);
+  --sidebar-accent: hsl(0, 0%, 14.9%);
+  --sidebar-accent-foreground: hsl(0, 0%, 100%);
+  --sidebar-border: hsl(0, 0%, 14.9%);
+  --sidebar-ring: hsl(275, 43%, 53%);
+  --font-sans: 'Press Start 2P', cursive;
+  --font-serif: Georgia, serif;
+  --font-mono: 'Press Start 2P', cursive;
+  --radius: 0.5rem;
+  
+  /* Custom pixel art colors */
+  --pixel-primary: hsl(275, 43%, 53%);
+  --pixel-secondary: hsl(240, 48%, 66%);
+  --pixel-accent: hsl(280, 50%, 56%);
+  --pixel-dark-bg: hsl(0, 0%, 6.3%);
+  --pixel-card-bg: hsla(0, 0%, 11.8%, 0.8);
+  --pixel-card-hover: hsla(0, 0%, 9.8%, 0.9);
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    font-family: 'Press Start 2P', cursive;
+    background: hsl(0, 0%, 6.3%);
+    min-height: 100vh;
+    -webkit-font-smoothing: none;
+    -moz-osx-font-smoothing: none;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Press Start 2P', cursive;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+  }
+
+  .pixel-border {
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  }
+
+  .retro-gradient {
+    background: linear-gradient(135deg, var(--pixel-primary) 0%, var(--pixel-secondary) 100%);
+  }
+
+  .game-canvas {
+    background: linear-gradient(45deg, #4B0082, #8B00FF, #00CED1);
+    background-size: 20px 20px;
+    animation: pixel-animate 2s infinite linear;
+  }
+
+  @keyframes pixel-animate {
+    0% { background-position: 0 0; }
+    100% { background-position: 20px 20px; }
+  }
+
+  .art-post-card {
+    background: var(--pixel-card-bg);
+    backdrop-filter: blur(10px);
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    border-radius: 0.5rem;
+  }
+
+  .nav-transition {
+    transition: all 0.3s ease;
+  }
+
+  .pixel-text-shadow {
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+  }
+}
+
+@layer components {
+  .pixel-btn {
+    @apply font-sans text-sm px-4 py-2 rounded-lg transition-all duration-300;
+    font-family: 'Press Start 2P', cursive;
+    border: 2px solid transparent;
+  }
+
+  .pixel-btn-primary {
+    @apply pixel-btn;
+    background: var(--pixel-primary);
+    color: white;
+    border-color: var(--pixel-primary);
+  }
+
+  .pixel-btn-primary:hover {
+    @apply transform scale-105 shadow-lg;
+    background: transparent;
+    color: var(--pixel-primary);
+  }
+
+  .pixel-card {
+    @apply art-post-card p-6 rounded-lg;
+    background: var(--pixel-card-bg);
+    transition: all 0.3s ease;
+  }
+
+  .pixel-card:hover {
+    @apply transform scale-105;
+    background: var(--pixel-card-hover);
+    border-color: var(--pixel-primary);
+  }
+}
